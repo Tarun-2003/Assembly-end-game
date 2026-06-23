@@ -1,28 +1,64 @@
-import React from "react"
+import { useState } from "react"
+import { languages } from "./languages"
 
 /**
- * Project planning:
+ * Goal: Build out the main parts of our app
  * 
- * Questions to ask yourself before writing any code:
- * 
- * - What are the main containers of elements I need
- *   in this app?
- * 
- * 
- * - What values will need to be saved in state vs.
- *   what values can be derived from the state?
- * 
- * 
- * - How will the user interact with the app? What
- *   events do I need to handle?
- * 
- * 
+ * Challenge: 
+ * Display the keyboard ⌨️. Use <button>s for each letter
+ * since it'll need to be clickable and tab-accessible.
  */
 
-export default function Hangman() {
+export default function AssemblyEndgame() {
+    const [currentWord, setCurrentWord] = useState("react")
+    
+    const alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+    const languageElements = languages.map(lang => {
+        const styles = {
+            backgroundColor: lang.backgroundColor,
+            color: lang.color
+        }
+        return (
+            <span
+                className="chip"
+                style={styles}
+                key={lang.name}
+            >
+                {lang.name}
+            </span>
+        )
+    })
+    
+    const letterElements = currentWord.split("").map((letter, index) => (
+        <span key={index}>{letter.toUpperCase()}</span>
+    ))
+
+    const keyboardElements = alphabet.split("").map((letter, index) => (
+        <button key={index}>{letter.toUpperCase()}</button>
+    ))
+
     return (
         <main>
-            Game goes here
+            <header>
+                <h1>Assembly: Endgame</h1>
+                <p>Guess the word within 8 attempts to keep the
+                programming world safe from Assembly!</p>
+            </header>
+            <section className="game-status">
+                <h2>You win!</h2>
+                <p>Well done! 🎉</p>
+            </section>
+            <section className="language-chips">
+                {languageElements}
+            </section>
+            <section className="word">
+                {letterElements}
+            </section>
+            <section className="keyboard">
+                {keyboardElements}
+
+            </section>
         </main>
     )
 }
