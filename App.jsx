@@ -1,42 +1,80 @@
 import { useState } from "react"
+import { clsx } from "clsx"
 import { languages } from "./languages"
 
 /**
- * Goal: Build out the main parts of our app
+ * Goal: Add in the incorrect guesses mechanism to the game
  * 
- * Challenge: 
- * Display the keyboard ⌨️. Use <button>s for each letter
- * since it'll need to be clickable and tab-accessible.
+ * Challenge: When mapping over the languages, determine how
+ * many of them have been "lost" and add the "lost" class if
+ * so.
+ * 
+ * Hint: use the wrongGuessCount combined with the index of
+ * the item in the array while inside the languages.map code
  */
 
 export default function AssemblyEndgame() {
+    // State values
     const [currentWord, setCurrentWord] = useState("react")
+    const [guessedLetters, setGuessedLetters] = useState([])
     
+    // Derived values
+    const wrongGuessCount = 
+        guessedLetters.filter(letter => !currentWord.includes(letter)).length
+    
+    // Static values
     const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
-    const languageElements = languages.map(lang => {
-        const styles = {
-            backgroundColor: lang.backgroundColor,
-            color: lang.color
-        }
-        return (
-            <span
-                className="chip"
-                style={styles}
-                key={lang.name}
-            >
-                {lang.name}
-            </span>
+    function addGuessedLetter(letter) {
+        setGuessedLetters(prevLetters =>
+            prevLetters.includes(letter) ?
+                prevLetters :
+                [...prevLetters, letter]
         )
-    })
-    
+    }
+
+   const languageElements = languages.map((lang, index) => {
+    const styles = {
+        backgroundColor: lang.backgroundColor,
+        color: lang.color
+    }
+
+    return (
+        <span
+            key={lang.name}
+            className={wrongGuessCount > index ? "chip lost" : "chip"}
+            style={styles}
+        >
+            {lang.name}
+        </span>
+    )
+})
+
     const letterElements = currentWord.split("").map((letter, index) => (
-        <span key={index}>{letter.toUpperCase()}</span>
+        <span key={index}>
+            {guessedLetters.includes(letter) ? letter.toUpperCase() : ""}
+        </span>
     ))
 
-    const keyboardElements = alphabet.split("").map((letter, index) => (
-        <button key={index}>{letter.toUpperCase()}</button>
-    ))
+    const keyboardElements = alphabet.split("").map(letter => {
+        const isGuessed = guessedLetters.includes(letter)
+        const isCorrect = isGuessed && currentWord.includes(letter)
+        const isWrong = isGuessed && !currentWord.includes(letter)
+        const className = clsx({
+            correct: isCorrect,
+            wrong: isWrong
+        })
+        
+        return (
+            <button
+                className={className}
+                key={letter}
+                onClick={() => addGuessedLetter(letter)}
+            >
+                {letter.toUpperCase()}
+            </button>
+        )
+    })
 
     return (
         <main>
@@ -57,8 +95,8 @@ export default function AssemblyEndgame() {
             </section>
             <section className="keyboard">
                 {keyboardElements}
-
             </section>
+            <button className="new-game">New Game</button>
         </main>
     )
 }
